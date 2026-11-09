@@ -1,5 +1,15 @@
 # pr-security-scan
 
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/e0fc6532-4f1b-4127-b72d-3bcbee058f53"
+    alt="pr-security-scan"
+    width="383"
+    height="256"
+  />
+</p>
+
+
 A coding-agent skill that security-reviews the code a developer is about to put up for review. It scopes to the changes on the current branch (or the open PR), including uncommitted work, then runs isolated per-class hunters and independent verifiers. It reports only moderate-or-higher issues with real impact, each with the smallest fix.
 
 It is built for minutes, not hours. It is not a whole-repository audit.
@@ -25,11 +35,11 @@ It is built for minutes, not hours. It is not a whole-repository audit.
 ## Requirements
 
 - `git`. The GitHub CLI (`gh`) is optional and only used to read an open PR.
-- An agent platform that can run sub-agents in parallel and give them read-only file access. The skill is agent-neutral and names roles, not products.
+- An agent platform that can run sub-agents in parallel and give them read-only file access. The skill is agent-neutral and names roles, not products. We've tested it with Claude Code and OpenCode.
 
 ## Install
 
-Copy this directory into your agent's skills location, for example `~/.claude/skills/pr-security-scan/` for Claude Code, or a project's `.claude/skills/` directory. Keep the folder name.
+Copy this directory into your agent's skills location, for example `~/.claude/skills/pr-security-scan/` for Claude Code, or a project's `.claude/skills/` directory. Keep the folder name as `pr-security-scan`.
 
 ## Use
 
@@ -38,7 +48,9 @@ Ask your agent, for example:
 - "Security-scan my branch before I open the PR."
 - "Security-review PR 1234."
 
-Optional scope flags for `scripts/resolve-scope.sh`: `--base <ref>` and `--pr <number>`.
+Or simply run `/pr-security-scan` inside the directory and branch you'd like to scan.
+
+You can add additional context when asking for a scan if you feel like it. Also, there are optional scope flags for `scripts/resolve-scope.sh`: `--base <ref>` and `--pr <number>`.
 
 ## Customizing and extending
 
@@ -53,17 +65,11 @@ After any change, re-run the skill on a branch with a few seeded bugs of that ki
 
 ## Cost and models
 
-Expect roughly 10 to 20 agents for a typical PR, run mostly in parallel. By default every agent uses the model you are already running. Splitting models by role (for example a stronger model for verifiers) is possible on platforms that allow it, but that split has not been tested.
-
-## Status and limits
-
-Tested on synthetic branches with seeded bugs, on disguised reintroductions of known vulnerability patterns, on new code written to match those patterns, and on prompt-injection attempts. All tests used one model family. It has not been tested on diffs above about 6,000 reviewable lines, with mixed model families, or against more sophisticated injections (forged tool output, hidden unicode, injection through file names). Treat it as a second reviewer, not the only one.
-
-The `electron` and `mobile` classes are newer than the rest. They were written from OWASP MASVS/MASTG, Electron's security documentation, Android's risk documentation, RFC 8252 and published research, and have not yet been exercised on real diffs. The iOS section in particular should be reviewed by someone who ships iOS apps. Expect to tune them.
+Expect roughly 10 to 20 agents for a typical PR, run mostly in parallel. By default every agent uses the model you are already running. Splitting models by role (for example a stronger model for verifiers) is possible on platforms that allow it, but that split has not been tested. Also, for cost optimization, you should run this skill in a new session. Avoid running it in the same session you were doing the code changes.
 
 ## Origin
 
-The attack-class files, severity anchors, candidate gate, the finder/verifier separation and the `needs_validation` verdict are adapted from [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) under the MIT License. See `NOTICE.md`.
+The workflow, attack-class files, severity anchors, candidate gate, the finder/verifier separation and the `needs_validation` verdict are adapted from [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) under the MIT License. See `NOTICE.md`.
 
 ## License
 
